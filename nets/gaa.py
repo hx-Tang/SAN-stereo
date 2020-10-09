@@ -179,7 +179,7 @@ class GAABottleneck(nn.Module):
         if ga_type == 0:
             self.sam = GAM2(in_planes, rel_planes, out_planes, kernel_size, stride)
         else:
-            self.sam = GAM(1, in_planes, rel_planes, out_planes, kernel_size, stride)
+            self.sam = GAM(0, in_planes, rel_planes, out_planes, kernel_size, stride)
         self.bn2 = nn.BatchNorm2d(out_planes)
         self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=1)
         self.bn3 = nn.BatchNorm2d(out_planes)
