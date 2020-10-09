@@ -121,11 +121,8 @@ def convbn(in_planes, out_planes, kernel_size, stride, pad, dilation):
 
 
 class PSMNetBasicBlock(nn.Module):
-    expansion = 1
-
     def __init__(self, inplanes, planes, stride, downsample, pad, dilation):
         super(PSMNetBasicBlock, self).__init__()
-
         self.conv1 = nn.Sequential(convbn(inplanes, planes, 3, stride, pad, dilation),
                                    nn.ReLU(inplace=True))
 

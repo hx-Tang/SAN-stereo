@@ -6,7 +6,7 @@ from nets.feature import (StereoNetFeature, PSMNetFeature, GANetFeature, GCNetFe
 from nets.resnet import AANetFeature
 from nets.cost import CostVolume, CostVolumePyramid
 from nets.aggregation import (StereoNetAggregation, GCNetAggregation, PSMNetBasicAggregation,
-                              PSMNetHGAggregation, AdaptiveAggregation)
+                              PSMNetHGAggregation, AdaptiveAggregation, GAAggregation)
 from nets.estimation import DisparityEstimation
 from nets.refinement import StereoNetRefinement, StereoDRNetRefinement, HourglassRefinement
 
@@ -92,6 +92,11 @@ class AANet(nn.Module):
                                                    mdconv_dilation=mdconv_dilation,
                                                    deformable_groups=deformable_groups,
                                                    intermediate_supervision=not no_intermediate_supervision)
+        elif aggregation_type == 'Guided_attention':
+            self.aggregation = GAAggregation(max_disp=max_disp,num_scales=num_scales,
+                                                   num_fusions=num_fusions,
+                                                   num_stage_blocks=num_stage_blocks,
+                                             intermediate_supervision=not no_intermediate_supervision)
         elif aggregation_type == 'psmnet_basic':
             self.aggregation = PSMNetBasicAggregation(max_disp=max_disp)
         elif aggregation_type == 'psmnet_hourglass':
@@ -207,7 +212,10 @@ class AANet(nn.Module):
         left_feature = self.feature_extraction(left_img)
         right_feature = self.feature_extraction(right_img)
         cost_volume = self.cost_volume_construction(left_feature, right_feature)
-        aggregation = self.aggregation(cost_volume)
+        if self.aggregation_type == 'Guided_attention':
+            aggregation = self.aggregation(cost_volume, left_feature)
+        else:
+            aggregation = self.aggregation(cost_volume)
         disparity_pyramid = self.disparity_computation(aggregation)
         disparity_pyramid += self.disparity_refinement(left_img, right_img,
                                                        disparity_pyramid[-1])

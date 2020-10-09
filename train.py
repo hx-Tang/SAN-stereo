@@ -76,7 +76,7 @@ parser.add_argument('--highest_loss_only', action='store_true', help='Only use l
 parser.add_argument('--load_pseudo_gt', action='store_true', help='Load pseudo gt for supervision')
 
 # Log
-parser.add_argument('--print_freq', default=100, type=int, help='Print frequency to screen')
+parser.add_argument('--print_freq', default=1, type=int, help='Print frequency to screen')
 parser.add_argument('--summary_freq', default=100, type=int, help='Summary frequency to tensorboard')
 parser.add_argument('--no_build_summary', action='store_true', help='Dont save sammary when training to save space')
 parser.add_argument('--save_ckpt_freq', default=10, type=int, help='Save checkpoint frequency')
@@ -241,3 +241,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    os.system('/root/shutdown.sh')

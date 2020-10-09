@@ -47,7 +47,7 @@ parser.add_argument('--feature_similarity', default='correlation', type=str,
                     help='Similarity measure for matching cost')
 parser.add_argument('--num_downsample', default=2, type=int, help='Number of downsample layer for feature extraction')
 parser.add_argument('--aggregation_type', default='adaptive', type=str, help='Type of cost aggregation')
-parser.add_argument('--num_scales', default=3, type=int, help='Number of stages when using parallel aggregation')
+parser.add_argument('--num_scales', default=1, type=int, help='Number of stages when using parallel aggregation')
 parser.add_argument('--num_fusions', default=6, type=int, help='Number of multi-scale fusions when using parallel'
                                                                'aggragetion')
 parser.add_argument('--num_stage_blocks', default=1, type=int, help='Number of deform blocks for ISA')

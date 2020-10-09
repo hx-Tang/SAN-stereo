@@ -128,31 +128,32 @@ class Model(object):
                              disp_loss.item()))
 
             if self.num_iter % args.summary_freq == 0:
-                img_summary = dict()
-                img_summary['left'] = left
-                img_summary['right'] = right
-                img_summary['gt_disp'] = gt_disp
+                if self.num_iter % (args.summary_freq * 100) == 0:
+                    img_summary = dict()
+                    img_summary['left'] = left
+                    img_summary['right'] = right
+                    img_summary['gt_disp'] = gt_disp
 
-                if args.load_pseudo_gt:
-                    img_summary['pseudo_gt_disp'] = pseudo_gt_disp
+                    if args.load_pseudo_gt:
+                        img_summary['pseudo_gt_disp'] = pseudo_gt_disp
 
-                # Save pyramid disparity prediction
-                for s in range(len(pred_disp_pyramid)):
-                    # Scale from low to high, reverse
-                    save_name = 'pred_disp' + str(len(pred_disp_pyramid) - s - 1)
-                    save_value = pred_disp_pyramid[s]
-                    img_summary[save_name] = save_value
+                    # Save pyramid disparity prediction
+                    for s in range(len(pred_disp_pyramid)):
+                        # Scale from low to high, reverse
+                        save_name = 'pred_disp' + str(len(pred_disp_pyramid) - s - 1)
+                        save_value = pred_disp_pyramid[s]
+                        img_summary[save_name] = save_value
 
-                pred_disp = pred_disp_pyramid[-1]
+                    pred_disp = pred_disp_pyramid[-1]
 
-                if pred_disp.size(-1) != gt_disp.size(-1):
-                    pred_disp = pred_disp.unsqueeze(1)  # [B, 1, H, W]
-                    pred_disp = F.interpolate(pred_disp, size=(gt_disp.size(-2), gt_disp.size(-1)),
-                                              mode='bilinear', align_corners=False) * (gt_disp.size(-1) / pred_disp.size(-1))
-                    pred_disp = pred_disp.squeeze(1)  # [B, H, W]
-                img_summary['disp_error'] = disp_error_img(pred_disp, gt_disp)
+                    if pred_disp.size(-1) != gt_disp.size(-1):
+                        pred_disp = pred_disp.unsqueeze(1)  # [B, 1, H, W]
+                        pred_disp = F.interpolate(pred_disp, size=(gt_disp.size(-2), gt_disp.size(-1)),
+                                                  mode='bilinear', align_corners=False) * (gt_disp.size(-1) / pred_disp.size(-1))
+                        pred_disp = pred_disp.squeeze(1)  # [B, H, W]
+                    img_summary['disp_error'] = disp_error_img(pred_disp, gt_disp)
 
-                save_images(self.train_writer, 'train', img_summary, self.num_iter)
+                    save_images(self.train_writer, 'train', img_summary, self.num_iter)
 
                 epe = F.l1_loss(gt_disp[mask], pred_disp[mask], reduction='mean')
 
@@ -269,15 +270,16 @@ class Model(object):
 
             # Save 3 images for visualization
             if not args.evaluate_only:
-                if i in [num_samples // 4, num_samples // 2, num_samples // 4 * 3]:
-                    img_summary = dict()
-                    img_summary['disp_error'] = disp_error_img(pred_disp, gt_disp)
-                    img_summary['left'] = left
-                    img_summary['right'] = right
-                    img_summary['gt_disp'] = gt_disp
-                    img_summary['pred_disp'] = pred_disp
-                    save_images(self.train_writer, 'val' + str(val_count), img_summary, self.epoch)
-                    val_count += 1
+                if self.epoch % args.summary_freq == 0:
+                    if i in [num_samples // 4, num_samples // 2, num_samples // 4 * 3]:
+                        img_summary = dict()
+                        img_summary['disp_error'] = disp_error_img(pred_disp, gt_disp)
+                        img_summary['left'] = left
+                        img_summary['right'] = right
+                        img_summary['gt_disp'] = gt_disp
+                        img_summary['pred_disp'] = pred_disp
+                        save_images(self.train_writer, 'val' + str(val_count), img_summary, self.epoch)
+                        val_count += 1
 
         logger.info('=> Validation done!')
 
@@ -358,3 +360,5 @@ class Model(object):
                                       epe=mean_epe, best_epe=self.best_epe,
                                       best_epoch=self.best_epoch,
                                       save_optimizer=False)
+
+        torch.cuda.empty_cache()

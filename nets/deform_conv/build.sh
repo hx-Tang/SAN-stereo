@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+
+
 PYTHON=${PYTHON:-"python"}
 
 if [ -d "build" ]; then
